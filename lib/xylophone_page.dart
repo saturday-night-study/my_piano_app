@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:my_xylophone_app/orientation_util.dart';
+import 'package:my_xylophone_app/record/recorder.dart';
+import 'package:my_xylophone_app/record/recorder_delegate.dart';
+import 'package:my_xylophone_app/record/recorder_state.dart';
 import 'package:my_xylophone_app/scale.dart';
 import 'package:my_xylophone_app/scales.dart';
 import 'package:my_xylophone_app/sound_key.dart';
@@ -14,70 +17,84 @@ class XylophonePage extends StatefulWidget {
   State<XylophonePage> createState() => _XylophonePageState();
 }
 
-class _XylophonePageState extends State<XylophonePage> {
-  bool _inPlaying = false;
-  bool _inRecording = false;
-
-  Timer? _timer;
+class _XylophonePageState extends State<XylophonePage>
+    implements RecorderDelegate {
   String _playTime = "00:00";
 
-  String get _playIconName => _inPlaying ? "stop" : "play";
-  String get _recordIconName => _inRecording ? "record_on" : "record_off";
+  String get _playIconName => _recorder.isPlaying ? "stop" : "play";
+  String get _recordIconName =>
+      _recorder.isRecording ? "record_on" : "record_off";
+
+  late final Recorder _recorder;
+  Scale? _currentPlayScale;
 
   @override
   void initState() {
     super.initState();
 
     OrientationUtil.setLandscape();
+
+    _recorder = Recorder(delegate: this);
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    _stopRecording();
+    _recorder.dispose();
 
     OrientationUtil.setPortrait();
   }
 
   void _handleTap(Scale scale) {
+    _recorder.tryRecord(scale);
+    _playSound(scale);
+  }
+
+  void _playSound(Scale scale) {
     final player = AudioCache(prefix: "assets/sounds/");
     player.play("note${scale.index + 1}.wav");
   }
 
   void _toggleControl() {
-    setState(() {
-      _inPlaying = !_inPlaying;
-    });
+    _recorder.isPlayable ? _recorder.playStart() : _recorder.playStop();
   }
 
   void _toggleRecording() {
-    setState(() {
-      _inRecording = !_inRecording;
-    });
-
-    _inRecording ? _startRecording() : _stopRecording();
+    _recorder.isRecording ? _recorder.recordStop() : _recorder.recordStart();
   }
 
-  void _startRecording() {
+  @override
+  void recorderStateDidChange(RecorderState state) {
+    if (!mounted) {
+      return;
+    }
+
     setState(() {
-      _playTime = "00:00";
-    });
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      final seconds = timer.tick;
-      final m = seconds ~/ 60;
-      final s = seconds % 60;
-
-      setState(() {
-        _playTime =
-            "${m.toString().padLeft(2, "0")}:${s.toString().padLeft(2, "0")}";
-      });
+      if (state.isPlayStop) {
+        _currentPlayScale = null;
+      }
     });
   }
 
-  void _stopRecording() {
-    _timer?.cancel();
+  @override
+  void tick(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+
+    setState(() {
+      _playTime =
+          "${m.toString().padLeft(2, "0")}:${s.toString().padLeft(2, "0")}";
+    });
+  }
+
+  @override
+  void play(Scale scale) {
+    setState(() {
+      _currentPlayScale = scale;
+    });
+
+    _playSound(scale);
   }
 
   @override
@@ -104,10 +121,10 @@ class _XylophonePageState extends State<XylophonePage> {
   List<Widget> _createSoundKeys() {
     return scales
         .map(
-          (e) => SoundKey(
-            scale: e,
+          (s) => SoundKey(
+            scale: s,
             onTap: _handleTap,
-            pressed: false,
+            pressed: s.scale == _currentPlayScale?.scale,
           ),
         )
         .toList();

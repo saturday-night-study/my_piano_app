@@ -32,6 +32,13 @@ class _SoundKeyState extends State<SoundKey> {
     _pressed = widget.pressed;
   }
 
+  @override
+  void didUpdateWidget(SoundKey oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    _pressed = widget.pressed;
+  }
+
   void _handleTap() {
     widget.onTap(widget.scale);
   }

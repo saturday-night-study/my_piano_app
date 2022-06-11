@@ -11,5 +11,5 @@ class Scale {
   final Color color;
   final String scale;
 
-  Color get pressedColor => color.withOpacity(0.75);
+  Color get pressedColor => color.withOpacity(0.3);
 }
