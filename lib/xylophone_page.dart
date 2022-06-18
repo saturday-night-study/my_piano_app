@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:my_xylophone_app/orientation_util.dart';
+import 'package:my_xylophone_app/record/record_repository.dart';
 import 'package:my_xylophone_app/record/recorder.dart';
 import 'package:my_xylophone_app/record/recorder_delegate.dart';
 import 'package:my_xylophone_app/record/recorder_state.dart';
@@ -80,11 +81,21 @@ class _XylophonePageState extends State<XylophonePage>
     if (state.isRecordStop) {
       RecordSaveDialog(
         context: context,
-        onSave: (String title) {
-          print(title);
-        },
+        onSave: _handleSave,
       ).show();
     }
+  }
+
+  void _handleSave(String title) {
+    final notes = _recorder.notes;
+    if (notes == null) {
+      return;
+    }
+
+    RecordRepository().add(
+      title: title,
+      notes: notes,
+    );
   }
 
   @override

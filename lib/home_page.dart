@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_xylophone_app/orientation_util.dart';
+import 'package:my_xylophone_app/record/record_repository.dart';
 import 'package:my_xylophone_app/xylophone_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,16 +24,24 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("My Xylophone"),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => XylophonePage()),
-            );
-          },
-          child: Text("Go Xylophone!"),
-        ),
+      body: Column(
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => XylophonePage()),
+              );
+            },
+            child: Text("Go Xylophone!"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              print(RecordRepository().count);
+            },
+            child: Text("Print record count"),
+          ),
+        ],
       ),
     );
   }

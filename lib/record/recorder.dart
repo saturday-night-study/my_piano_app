@@ -24,6 +24,7 @@ class Recorder {
 
   Timer? _timer;
   Notes? _notes;
+  Notes? get notes => _notes;
 
   void recordStart() {
     if (_state.isStarted) {
