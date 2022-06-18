@@ -23,7 +23,6 @@ class Recorder {
   bool get isNotPlayable => !isPlayable;
 
   Timer? _timer;
-
   Notes? _notes;
 
   void recordStart() {

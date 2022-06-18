@@ -6,6 +6,7 @@ import 'package:my_xylophone_app/orientation_util.dart';
 import 'package:my_xylophone_app/record/recorder.dart';
 import 'package:my_xylophone_app/record/recorder_delegate.dart';
 import 'package:my_xylophone_app/record/recorder_state.dart';
+import 'package:my_xylophone_app/record_save_dialog.dart';
 import 'package:my_xylophone_app/scale.dart';
 import 'package:my_xylophone_app/scales.dart';
 import 'package:my_xylophone_app/sound_key.dart';
@@ -75,6 +76,15 @@ class _XylophonePageState extends State<XylophonePage>
         _currentPlayScale = null;
       }
     });
+
+    if (state.isRecordStop) {
+      RecordSaveDialog(
+        context: context,
+        onSave: (String title) {
+          print(title);
+        },
+      ).show();
+    }
   }
 
   @override
