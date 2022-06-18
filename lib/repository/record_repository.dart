@@ -24,4 +24,12 @@ class RecordRepository {
       saveAt: DateTime.now(),
     ));
   }
+
+  Record? get(int index) {
+    if (index >= count) {
+      return null;
+    }
+
+    return _records[index];
+  }
 }

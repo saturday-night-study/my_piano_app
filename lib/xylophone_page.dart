@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:my_xylophone_app/int_extension.dart';
 import 'package:my_xylophone_app/orientation_util.dart';
-import 'package:my_xylophone_app/record/record_repository.dart';
+import 'package:my_xylophone_app/record/notes.dart';
+import 'package:my_xylophone_app/repository/record_repository.dart';
 import 'package:my_xylophone_app/record/recorder.dart';
 import 'package:my_xylophone_app/record/recorder_delegate.dart';
 import 'package:my_xylophone_app/record/recorder_state.dart';
@@ -13,7 +15,12 @@ import 'package:my_xylophone_app/scales.dart';
 import 'package:my_xylophone_app/sound_key.dart';
 
 class XylophonePage extends StatefulWidget {
-  const XylophonePage({Key? key}) : super(key: key);
+  const XylophonePage({
+    Key? key,
+    required this.notes,
+  }) : super(key: key);
+
+  final Notes? notes;
 
   @override
   State<XylophonePage> createState() => _XylophonePageState();
@@ -21,7 +28,7 @@ class XylophonePage extends StatefulWidget {
 
 class _XylophonePageState extends State<XylophonePage>
     implements RecorderDelegate {
-  String _playTime = "00:00";
+  String _playTime = 0.playTimeFormat;
 
   String get _playIconName => _recorder.isPlaying ? "stop" : "play";
   String get _recordIconName =>
@@ -36,7 +43,10 @@ class _XylophonePageState extends State<XylophonePage>
 
     OrientationUtil.setLandscape();
 
-    _recorder = Recorder(delegate: this);
+    _recorder = Recorder(
+      delegate: this,
+      notes: widget.notes,
+    );
   }
 
   @override
@@ -100,12 +110,8 @@ class _XylophonePageState extends State<XylophonePage>
 
   @override
   void tick(int seconds) {
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
-
     setState(() {
-      _playTime =
-          "${m.toString().padLeft(2, "0")}:${s.toString().padLeft(2, "0")}";
+      _playTime = seconds.playTimeFormat;
     });
   }
 

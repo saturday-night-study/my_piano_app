@@ -9,7 +9,8 @@ import 'package:my_xylophone_app/scale.dart';
 class Recorder {
   Recorder({
     required this.delegate,
-  });
+    Notes? notes,
+  }) : _notes = notes;
 
   final RecorderDelegate delegate;
 
@@ -59,10 +60,12 @@ class Recorder {
   }
 
   void playStart() {
+    print(222);
     if (isNotPlayable) {
       return;
     }
 
+    print(333);
     _timerStart();
 
     _notes?.reset();
